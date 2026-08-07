@@ -1,0 +1,49 @@
+table Customers
+	lineageTag: c3d4e5f6-a7b8-9012-cdef-123456789012
+
+	column CustomerID
+		dataType: int64
+		formatString: 0
+		lineageTag: 12121212-1212-1212-1212-121212121212
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+	column CustomerName
+		dataType: string
+		lineageTag: 13131313-1313-1313-1313-131313131313
+		summarizeBy: none
+		sourceColumn: CustomerName
+
+	column Region
+		dataType: string
+		lineageTag: 14141414-1414-1414-1414-141414141414
+		summarizeBy: none
+		sourceColumn: Region
+
+	column Segment
+		dataType: string
+		lineageTag: 15151515-1515-1515-1515-151515151515
+		summarizeBy: none
+		sourceColumn: Segment
+		description: "Customer segment: Consumer, Corporate, or Home Office"
+
+	column City
+		dataType: string
+		lineageTag: 16161616-1616-1616-1616-161616161616
+		summarizeBy: none
+		sourceColumn: City
+
+	column State
+		dataType: string
+		lineageTag: 17171717-1717-1717-1717-171717171717
+		summarizeBy: none
+		sourceColumn: State
+
+	partition Customers = m
+		mode: import
+		source =
+			let
+			    Source = Csv.Document(File.Contents("data/customers.csv"), [Delimiter=",", Encoding=65001]),
+			    PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+			in
+			    PromotedHeaders

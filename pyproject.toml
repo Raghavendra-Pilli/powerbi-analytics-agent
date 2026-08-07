@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "powerbi-analytics-agent"
+version = "0.1.0"
+description = "A plug-and-play analytics agent for Power BI: connect, inspect, review, and export."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "Raghava"},
+]
+keywords = ["powerbi", "analytics", "agent", "tmdl", "pbip"]
+
+dependencies = [
+    "anthropic>=0.39.0",
+    "pandas>=2.0.0",
+    "openpyxl>=3.1.0",
+    "pyodbc>=5.0.0",
+    "sqlalchemy>=2.0.0",
+    "pyyaml>=6.0",
+    "click>=8.1.0",
+    "rich>=13.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+ui = [
+    "streamlit>=1.30.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+pbi-agent = "pbi_agent.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

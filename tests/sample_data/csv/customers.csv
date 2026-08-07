@@ -1,0 +1,11 @@
+CustomerID,CustomerName,Region,Segment,City,State
+501,Alice Chen,West,Consumer,Seattle,WA
+502,Bob Martinez,South,Corporate,Austin,TX
+503,Carol Williams,East,Consumer,New York,NY
+504,David Kim,West,Home Office,San Francisco,CA
+505,Eva Johnson,Midwest,Corporate,Chicago,IL
+506,Frank Brown,South,Consumer,Miami,FL
+507,Grace Lee,East,Home Office,Boston,MA
+508,Henry Davis,West,Consumer,Portland,OR
+509,Iris Patel,Midwest,Corporate,Minneapolis,MN
+510,Jack Wilson,South,Consumer,Atlanta,GA

@@ -1,0 +1,61 @@
+# Power BI Analytics Agent Configuration
+
+agent:
+  name: "PowerBI Analytics Agent"
+  version: "0.1.0"
+
+llm:
+  # Model for intent routing (fast, cheap)
+  router_model: "claude-haiku-4-5-20251001"
+  # Model for analysis tasks (reasoning)
+  analysis_model: "claude-sonnet-4-20250514"
+  max_tokens: 4096
+  temperature: 0.0
+
+pbi_tools:
+  # Path to pbi-tools executable
+  path: "pbi-tools"
+  # Default output directory for exports
+  export_dir: "./exports"
+  # Timeout for pbi-tools commands (seconds)
+  timeout: 120
+
+connectors:
+  csv:
+    enabled: true
+    max_file_size_mb: 500
+    supported_extensions: [".csv", ".tsv", ".xlsx", ".xls"]
+  sql_server:
+    enabled: true
+    connection_timeout: 30
+    query_timeout: 120
+
+inspector:
+  # Maximum tables to inspect in detail
+  max_tables_detail: 50
+  # Flag measures without descriptions
+  flag_undocumented: true
+  # Check for unused columns
+  check_unused_columns: true
+
+reviewer:
+  # Minimum pages expected in a report
+  min_pages: 1
+  # Check for report-level filters
+  check_filters: true
+  # Validate visual types
+  validate_visuals: true
+
+export:
+  # Default export format
+  default_format: "pbip"
+  # Include documentation in export
+  include_docs: true
+  # Tableau handoff (optional, disabled by default)
+  tableau_handoff: false
+
+logging:
+  level: "INFO"
+  format: "structured"
+  file: "logs/agent.log"
+  console: true

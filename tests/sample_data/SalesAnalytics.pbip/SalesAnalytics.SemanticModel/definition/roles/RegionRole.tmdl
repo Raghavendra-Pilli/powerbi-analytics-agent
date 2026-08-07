@@ -1,0 +1,6 @@
+role RegionRole
+	modelPermission: read
+	description: "Restricts data to the user's assigned region"
+
+	tablePermission Customers
+		filterExpression: [Region] = USERNAME()

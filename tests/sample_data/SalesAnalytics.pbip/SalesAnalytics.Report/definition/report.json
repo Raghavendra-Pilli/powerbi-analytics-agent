@@ -1,0 +1,116 @@
+{
+  "id": "report-001",
+  "reportId": "report-001",
+  "name": "Sales Analytics",
+  "description": "Sales performance dashboard with revenue, orders, and growth metrics",
+  "layoutOptimization": 0,
+  "resourcePackages": [],
+  "sections": [
+    {
+      "name": "ReportSectionOverview",
+      "displayName": "Overview",
+      "ordinal": 0,
+      "width": 1280,
+      "height": 720,
+      "visualContainers": [
+        {
+          "x": 0, "y": 0, "width": 400, "height": 200,
+          "config": {
+            "name": "card_total_revenue",
+            "type": "card",
+            "singleVisual": {
+              "visualType": "card",
+              "projections": { "Values": [{"queryRef": "Sales.Total Revenue"}] }
+            }
+          }
+        },
+        {
+          "x": 400, "y": 0, "width": 400, "height": 200,
+          "config": {
+            "name": "card_order_count",
+            "type": "card",
+            "singleVisual": {
+              "visualType": "card",
+              "projections": { "Values": [{"queryRef": "Sales.Order Count"}] }
+            }
+          }
+        },
+        {
+          "x": 0, "y": 200, "width": 800, "height": 400,
+          "config": {
+            "name": "chart_revenue_by_month",
+            "type": "lineChart",
+            "singleVisual": {
+              "visualType": "lineChart",
+              "projections": {
+                "Category": [{"queryRef": "DateTable.Month"}],
+                "Values": [{"queryRef": "Sales.Total Revenue"}]
+              }
+            }
+          }
+        },
+        {
+          "x": 800, "y": 0, "width": 480, "height": 600,
+          "config": {
+            "name": "chart_revenue_by_category",
+            "type": "barChart",
+            "singleVisual": {
+              "visualType": "barChart",
+              "projections": {
+                "Category": [{"queryRef": "Products.Category"}],
+                "Values": [{"queryRef": "Sales.Total Revenue"}]
+              }
+            }
+          }
+        }
+      ],
+      "filters": [
+        {
+          "name": "filter_year",
+          "type": "basic",
+          "expression": {
+            "column": {"property": "Year", "source": {"entity": "DateTable"}}
+          }
+        }
+      ]
+    },
+    {
+      "name": "ReportSectionDetail",
+      "displayName": "Detail",
+      "ordinal": 1,
+      "width": 1280,
+      "height": 720,
+      "visualContainers": [
+        {
+          "x": 0, "y": 0, "width": 1280, "height": 600,
+          "config": {
+            "name": "table_detail",
+            "type": "tableEx",
+            "singleVisual": {
+              "visualType": "tableEx",
+              "projections": {
+                "Values": [
+                  {"queryRef": "Products.ProductName"},
+                  {"queryRef": "Products.Category"},
+                  {"queryRef": "Sales.Total Revenue"},
+                  {"queryRef": "Sales.Order Count"},
+                  {"queryRef": "Sales.YoY Growth %"}
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "filters": []
+    }
+  ],
+  "config": {
+    "version": "5.50",
+    "themeCollection": {
+      "baseTheme": {
+        "name": "CY24SU06",
+        "version": "5.50"
+      }
+    }
+  }
+}

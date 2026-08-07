@@ -1,0 +1,70 @@
+table DateTable
+	lineageTag: d4e5f6a7-b8c9-0123-def0-234567890123
+	dataCategory: Time
+
+	column Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 21212121-2121-2121-2121-212121212121
+		summarizeBy: none
+		sourceColumn: Date
+		isKey: true
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 23232323-2323-2323-2323-232323232323
+		summarizeBy: none
+		sourceColumn: Year
+
+	column Quarter
+		dataType: string
+		lineageTag: 24242424-2424-2424-2424-242424242424
+		summarizeBy: none
+		sourceColumn: Quarter
+
+	column Month
+		dataType: string
+		lineageTag: 25252525-2525-2525-2525-252525252525
+		summarizeBy: none
+		sourceColumn: Month
+		sortByColumn: MonthNumber
+
+	column MonthNumber
+		dataType: int64
+		formatString: 0
+		lineageTag: 26262626-2626-2626-2626-262626262626
+		summarizeBy: none
+		sourceColumn: MonthNumber
+		isHidden: true
+
+	column WeekDay
+		dataType: string
+		lineageTag: 27272727-2727-2727-2727-272727272727
+		summarizeBy: none
+		sourceColumn: WeekDay
+
+	hierarchy 'Date Hierarchy'
+		level Year
+			column: Year
+		level Quarter
+			column: Quarter
+		level Month
+			column: Month
+
+	partition DateTable = m
+		mode: import
+		source =
+			let
+			    StartDate = #date(2022, 1, 1),
+			    EndDate = #date(2026, 12, 31),
+			    DateList = List.Dates(StartDate, Duration.Days(EndDate - StartDate) + 1, #duration(1,0,0,0)),
+			    DateTable = Table.FromList(DateList, Splitter.SplitByNothing(), {"Date"}, null, ExtraValues.Error),
+			    ChangedType = Table.TransformColumnTypes(DateTable, {{"Date", type date}}),
+			    AddYear = Table.AddColumn(ChangedType, "Year", each Date.Year([Date]), Int64.Type),
+			    AddQuarter = Table.AddColumn(AddYear, "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])), type text),
+			    AddMonth = Table.AddColumn(AddQuarter, "Month", each Date.MonthName([Date]), type text),
+			    AddMonthNum = Table.AddColumn(AddMonth, "MonthNumber", each Date.Month([Date]), Int64.Type),
+			    AddWeekDay = Table.AddColumn(AddMonthNum, "WeekDay", each Date.DayOfWeekName([Date]), type text)
+			in
+			    AddWeekDay

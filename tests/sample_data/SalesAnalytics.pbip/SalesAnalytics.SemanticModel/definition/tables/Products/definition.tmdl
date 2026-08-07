@@ -1,0 +1,50 @@
+table Products
+	lineageTag: b2c3d4e5-f6a7-8901-bcde-f12345678901
+
+	column ProductID
+		dataType: int64
+		formatString: 0
+		lineageTag: aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+		summarizeBy: none
+		sourceColumn: ProductID
+		description: "Unique product identifier"
+
+	column ProductName
+		dataType: string
+		lineageTag: bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+		summarizeBy: none
+		sourceColumn: ProductName
+
+	column Category
+		dataType: string
+		lineageTag: cccccccc-cccc-cccc-cccc-cccccccccccc
+		summarizeBy: none
+		sourceColumn: Category
+
+	column SubCategory
+		dataType: string
+		lineageTag: dddddddd-dddd-dddd-dddd-dddddddddddd
+		summarizeBy: none
+		sourceColumn: SubCategory
+
+	column ListPrice
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
+		summarizeBy: none
+		sourceColumn: ListPrice
+
+	column IsActive
+		dataType: boolean
+		lineageTag: ffffffff-ffff-ffff-ffff-ffffffffffff
+		summarizeBy: none
+		sourceColumn: IsActive
+
+	partition Products = m
+		mode: import
+		source =
+			let
+			    Source = Csv.Document(File.Contents("data/products.csv"), [Delimiter=",", Encoding=65001]),
+			    PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+			in
+			    PromotedHeaders

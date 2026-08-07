@@ -1,0 +1,8 @@
+ProductID,ProductName,Category,SubCategory,ListPrice,IsActive
+101,Wireless Mouse,Electronics,Peripherals,29.99,TRUE
+102,Mechanical Keyboard,Electronics,Peripherals,149.99,TRUE
+103,USB-C Cable,Electronics,Accessories,9.99,TRUE
+104,27" Monitor,Electronics,Displays,499.99,TRUE
+105,Webcam HD,Electronics,Peripherals,74.99,TRUE
+106,Standing Desk,Furniture,Desks,199.99,TRUE
+107,Ergonomic Chair,Furniture,Chairs,349.99,FALSE

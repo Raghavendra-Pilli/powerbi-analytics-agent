@@ -1,0 +1,93 @@
+table Sales
+	lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+
+	column OrderID
+		dataType: int64
+		formatString: 0
+		lineageTag: 11111111-1111-1111-1111-111111111111
+		summarizeBy: none
+		sourceColumn: OrderID
+
+	column OrderDate
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 22222222-2222-2222-2222-222222222222
+		summarizeBy: none
+		sourceColumn: OrderDate
+
+	column ProductID
+		dataType: int64
+		formatString: 0
+		lineageTag: 33333333-3333-3333-3333-333333333333
+		summarizeBy: none
+		sourceColumn: ProductID
+
+	column CustomerID
+		dataType: int64
+		formatString: 0
+		lineageTag: 44444444-4444-4444-4444-444444444444
+		summarizeBy: none
+		sourceColumn: CustomerID
+
+	column Quantity
+		dataType: int64
+		formatString: #,0
+		lineageTag: 55555555-5555-5555-5555-555555555555
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+	column UnitPrice
+		dataType: decimal
+		formatString: $#,0.00
+		lineageTag: 66666666-6666-6666-6666-666666666666
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+	column Discount
+		dataType: double
+		formatString: 0.00%
+		lineageTag: 77777777-7777-7777-7777-777777777777
+		summarizeBy: average
+		sourceColumn: Discount
+
+	measure 'Total Revenue' =
+		SUMX(Sales, Sales[Quantity] * Sales[UnitPrice] * (1 - Sales[Discount]))
+		formatString: $#,0.00
+		displayFolder: Revenue
+		description: "Total revenue after discounts"
+
+	measure 'Order Count' =
+		DISTINCTCOUNT(Sales[OrderID])
+		formatString: #,0
+		displayFolder: Orders
+
+	measure 'Average Order Value' =
+		DIVIDE([Total Revenue], [Order Count])
+		formatString: $#,0.00
+		displayFolder: Revenue
+		description: "Average revenue per order"
+
+	measure 'YoY Growth %' =
+		VAR CurrentYear = [Total Revenue]
+		VAR PriorYear = CALCULATE([Total Revenue], SAMEPERIODLASTYEAR(DateTable[Date]))
+		RETURN DIVIDE(CurrentYear - PriorYear, PriorYear)
+		formatString: 0.0%
+		displayFolder: Growth
+
+	partition Sales = m
+		mode: import
+		source =
+			let
+			    Source = Csv.Document(File.Contents("data/sales.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.None]),
+			    PromotedHeaders = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+			    ChangedTypes = Table.TransformColumnTypes(PromotedHeaders, {
+			        {"OrderID", Int64.Type},
+			        {"OrderDate", type datetime},
+			        {"ProductID", Int64.Type},
+			        {"CustomerID", Int64.Type},
+			        {"Quantity", Int64.Type},
+			        {"UnitPrice", Currency.Type},
+			        {"Discount", type number}
+			    })
+			in
+			    ChangedTypes
