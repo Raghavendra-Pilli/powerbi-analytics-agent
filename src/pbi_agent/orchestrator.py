@@ -156,6 +156,7 @@ class Orchestrator:
 
     def set_pbip_path(self, path: str) -> str:
         """Set the PBIP project path for inspection/review/export."""
+        path = path.strip().strip('"').strip("'")
         self.session.pbip_path = path
         log.info(f"PBIP path set: {path}")
         return f"PBIP project loaded: {path}"

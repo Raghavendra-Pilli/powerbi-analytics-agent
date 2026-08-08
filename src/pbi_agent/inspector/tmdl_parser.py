@@ -262,13 +262,23 @@ class TMDLParser:
             model.model_info = self._parse_model_file(model_file)
 
         # Parse tables
+       # Parse tables. Two known TMDL layouts are supported:
+        #   1. Folder-per-table:  tables/<TableName>/definition.tmdl
+        #   2. Flat files:        tables/<TableName>.tmdl
         tables_dir = definition_dir / "tables"
         if tables_dir.exists():
-            for table_dir in sorted(tables_dir.iterdir()):
-                if table_dir.is_dir():
-                    tmdl_file = table_dir / "definition.tmdl"
-                    if tmdl_file.exists():
-                        table = self._parse_table_file(tmdl_file)
+            for entry in sorted(tables_dir.iterdir()):
+                tmdl_file = None
+                if entry.is_dir():
+                    candidate = entry / "definition.tmdl"
+                    if candidate.exists():
+                        tmdl_file = candidate
+                elif entry.is_file() and entry.suffix == ".tmdl":
+                    tmdl_file = entry
+
+                if tmdl_file:
+                    table = self._parse_table_file(tmdl_file)
+                    if table.name:
                         model.tables.append(table)
                         log.info(
                             f"  Table '{table.name}': "
