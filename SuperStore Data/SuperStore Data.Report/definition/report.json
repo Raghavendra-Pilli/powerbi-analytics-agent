@@ -1,0 +1,100 @@
+{
+  "id": "report-scaffold",
+  "reportId": "report-scaffold",
+  "name": "SuperStore Data",
+  "description": "Auto-generated starter report for SuperStore Data",
+  "layoutOptimization": 0,
+  "resourcePackages": [],
+  "sections": [
+    {
+      "name": "ReportSection0",
+      "displayName": "SuperStore Data",
+      "ordinal": 0,
+      "width": 1280,
+      "height": 720,
+      "visualContainers": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 600,
+          "config": {
+            "name": "table_SuperStore Data",
+            "type": "tableEx",
+            "singleVisual": {
+              "visualType": "tableEx",
+              "projections": {
+                "Values": [
+                  {
+                    "queryRef": "SuperStore Data.Row ID"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Order ID"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Order Date"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Ship Date"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Ship Mode"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Customer ID"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Customer Name"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Segment"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Country/Region"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.City"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.State"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Postal Code"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Region"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Product ID"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Category"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Sub-Category"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Sales"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Quantity"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Discount"
+                  },
+                  {
+                    "queryRef": "SuperStore Data.Profit"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "filters": []
+    }
+  ],
+  "config": {
+    "version": "5.50"
+  }
+}

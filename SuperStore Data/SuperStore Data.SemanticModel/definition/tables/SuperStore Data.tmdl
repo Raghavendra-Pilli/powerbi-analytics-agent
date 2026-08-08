@@ -1,0 +1,111 @@
+table SuperStore Data
+
+	column 'Row ID'
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Row ID
+
+	column 'Order ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Order ID
+
+	column 'Order Date'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Order Date
+
+	column 'Ship Date'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Ship Date
+
+	column 'Ship Mode'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Ship Mode
+
+	column 'Customer ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Customer ID
+
+	column 'Customer Name'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Customer Name
+
+	column 'Segment'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Segment
+
+	column 'Country/Region'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Country/Region
+
+	column 'City'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: City
+
+	column 'State'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: State
+
+	column 'Postal Code'
+		dataType: double
+		summarizeBy: sum
+		sourceColumn: Postal Code
+
+	column 'Region'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Region
+
+	column 'Product ID'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Product ID
+
+	column 'Category'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Category
+
+	column 'Sub-Category'
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Sub-Category
+
+	column 'Sales'
+		dataType: double
+		summarizeBy: sum
+		sourceColumn: Sales
+
+	column 'Quantity'
+		dataType: int64
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+	column 'Discount'
+		dataType: double
+		summarizeBy: sum
+		sourceColumn: Discount
+
+	column 'Profit'
+		dataType: double
+		summarizeBy: sum
+		sourceColumn: Profit
+
+	partition SuperStore Data = m
+		mode: import
+		source =
+			let
+			    Source = Excel.Workbook(File.Contents("C:\Users\pragh\Documents\SuperStore Data.xlsx"), null, true),
+			    Data = Source{[Item="Orders",Kind="Sheet"]}[Data],
+			    #"Promoted Headers" = Table.PromoteHeaders(Data, [PromoteAllScalars=true])
+			in
+			    #"Promoted Headers"

@@ -128,6 +128,11 @@ class ConnectionManager:
                 return match.group(0).strip()
         return None
 
+    @property
+    def last_file_result(self):
+        """The most recent raw FileConnectionResult (with full column metadata), or None."""
+        return self._last_file_result
+
     def get_metadata_for_llm(self) -> dict[str, Any]:
         """Get combined metadata from all connections for LLM analysis."""
         metadata = {"sources": []}

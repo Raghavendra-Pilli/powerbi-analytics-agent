@@ -7,6 +7,23 @@ from pbi_agent.logging import get_logger
 log = get_logger("llm")
 
 
+def _extract_text(response) -> str:
+    """Pull the text content out of a Claude response.
+
+    Some models/modes prepend non-text blocks (e.g. ThinkingBlock) before
+    the actual text block, so we can't assume content[0] is always text.
+    """
+    for block in response.content:
+        if getattr(block, "type", None) == "text":
+            return block.text
+    # Fallback: no explicit "text" type found, try attribute directly
+    for block in response.content:
+        text = getattr(block, "text", None)
+        if text:
+            return text
+    return ""
+
+
 class LLMClient:
     """Wrapper around the Anthropic API with model routing."""
 
@@ -21,10 +38,21 @@ class LLMClient:
         system = (
             "You are an intent classifier for a Power BI analytics agent. "
             "Classify the user message into exactly one of these categories:\n"
-            "- CONNECT: User wants to connect to a data source\n"
-            "- INSPECT: User wants to inspect/explore a semantic model\n"
-            "- REVIEW: User wants to review report health or quality\n"
-            "- EXPORT: User wants to export PBIX or project files\n"
+            "- CONNECT: User wants to connect to a data source (CSV/Excel/SQL)\n"
+            "- SUMMARIZE: User wants a plain-language summary/description of data that is "
+            "already connected (e.g. 'summarize the data', 'what's in this file', "
+            "'describe the data')\n"
+            "- INSPECT: User wants to inspect/explore an existing Power BI semantic model's "
+            "structure/quality (tables, measures, relationships already defined in a .pbip project)\n"
+            "- REVIEW: User wants to review an existing Power BI report's health or quality\n"
+            "- SCAFFOLD: User wants to create/generate a new .pbip Power BI project FROM a "
+            "connected CSV/Excel file (e.g. 'create a pbip for this excel file', "
+            "'generate a power bi project from this data', 'build a pbip report')\n"
+            "- REMEDIATE: User wants to FIX gaps in an already-loaded PBIP model — generate "
+            "missing DAX measures, fix the date table, improve the health score, make it "
+            "'production ready' (e.g. 'fix all gaps in the model', 'create the missing "
+            "measures', 'improve the health score')\n"
+            "- EXPORT: User wants to export an EXISTING PBIP project to PBIX or a package\n"
             "- HELP: User needs help or has a general question\n\n"
             "Respond with ONLY the category name, nothing else."
         )
@@ -34,7 +62,7 @@ class LLMClient:
             system=system,
             messages=[{"role": "user", "content": user_message}],
         )
-        intent = response.content[0].text.strip().upper()
+        intent = _extract_text(response).strip().upper()
         log.info(f"Routed intent: {intent}")
         return intent
 
@@ -46,7 +74,7 @@ class LLMClient:
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         )
-        return response.content[0].text
+        return _extract_text(response)
 
     def chat(self, messages: list[dict], system_prompt: str = "") -> str:
         """Multi-turn conversation."""
@@ -58,4 +86,4 @@ class LLMClient:
         if system_prompt:
             kwargs["system"] = system_prompt
         response = self.client.messages.create(**kwargs)
-        return response.content[0].text
+        return _extract_text(response)

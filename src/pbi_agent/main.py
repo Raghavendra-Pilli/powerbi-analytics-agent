@@ -159,6 +159,44 @@ def document(ctx, path, output):
     console.print(f"[green]Business documentation saved to: {out_path}[/green]")
 
 
+@cli.command()
+@click.argument("path")
+@click.option("--output", "-o", default=None, help="Output directory for the fixed copy (ignored with --in-place)")
+@click.option("--in-place", is_flag=True, default=False, help="Modify the original project files directly (default: writes a safe copy)")
+@click.pass_context
+def remediate(ctx, path, output, in_place):
+    """Fix model gaps: generate missing DAX, fix the date table, and report a before/after health score."""
+    from pbi_agent.remediate.model_fixer import ModelFixer
+    from pbi_agent.llm.client import LLMClient
+
+    config = ctx.obj["config"]
+    llm_client = LLMClient(config.llm)
+    fixer = ModelFixer(llm_client)
+
+    if in_place:
+        console.print("[yellow]--in-place: modifying your original project files directly.[/yellow]")
+
+    with console.status("[bold yellow]Analyzing and fixing the model (this can take a minute)...[/bold yellow]"):
+        result = fixer.remediate(path, output_dir=output, in_place=in_place)
+
+    if not result.success:
+        console.print(f"[red]Remediation failed: {result.error}[/red]")
+        return
+
+    console.print(f"[bold]Before:[/bold] {result.before_score}")
+    console.print(f"[bold]After:[/bold]  {result.after_score}\n")
+
+    console.print("[bold]Changes made:[/bold]")
+    for c in result.changes:
+        console.print(f"  - [{c.category}] {c.description}")
+
+    console.print(f"\n[green]Fixed project written to: {result.output_path}[/green]")
+
+    spec_path = Path(result.output_path).parent / (Path(result.output_path).name + "_dashboard_spec.md")
+    spec_path.write_text(result.dashboard_spec, encoding="utf-8")
+    console.print(f"[green]Dashboard page specification written to: {spec_path}[/green]")
+
+
 @cli.command(name="export")
 @click.argument("path")
 @click.option("--format", "fmt", type=click.Choice(["pbix", "pbip"]), default="pbip",
@@ -205,6 +243,36 @@ def extract(ctx, path, output):
         console.print(f"[green]{result.message}[/green]")
     else:
         console.print(f"[red]Extraction failed: {result.error}[/red]")
+
+
+@cli.command()
+@click.argument("path")
+@click.option("--output", "-o", default=".", help="Output directory for the new PBIP project")
+@click.option("--name", "-n", default=None, help="Project name (default: derived from file name)")
+@click.pass_context
+def scaffold(ctx, path, output, name):
+    """Generate a starter .pbip project from a connected CSV/Excel file."""
+    from pbi_agent.connectors.csv_connector import FileConnector
+    from pbi_agent.export.pbip_scaffolder import PbipScaffolder
+
+    connector = FileConnector()
+    with console.status("[bold yellow]Reading source file...[/bold yellow]"):
+        file_result = connector.connect(path)
+
+    if not file_result.success:
+        console.print(f"[red]Could not read source file: {file_result.error}[/red]")
+        return
+
+    scaffolder = PbipScaffolder()
+    with console.status("[bold yellow]Generating PBIP project...[/bold yellow]"):
+        result = scaffolder.scaffold(file_result, output, name)
+
+    if result.success:
+        console.print(f"[green]{result.message}[/green]")
+        for w in result.warnings:
+            console.print(f"[yellow]Note: {w}[/yellow]")
+    else:
+        console.print(f"[red]Scaffold failed: {result.error}[/red]")
 
 
 @cli.command()

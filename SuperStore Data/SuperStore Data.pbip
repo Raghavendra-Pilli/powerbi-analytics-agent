@@ -1,0 +1,18 @@
+{
+  "version": "1.0",
+  "artifacts": [
+    {
+      "report": {
+        "path": "SuperStore Data.Report"
+      }
+    },
+    {
+      "dataset": {
+        "path": "SuperStore Data.SemanticModel"
+      }
+    }
+  ],
+  "settings": {
+    "enableAutoRecovery": true
+  }
+}
