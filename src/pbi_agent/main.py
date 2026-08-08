@@ -1,6 +1,8 @@
 """CLI entry point for the Power BI Analytics Agent."""
 
 import json
+from pathlib import Path
+
 import click
 from rich.console import Console
 from rich.panel import Panel
@@ -74,8 +76,9 @@ def chat(ctx):
 @click.argument("path")
 @click.option("--llm/--no-llm", default=False, help="Include LLM analysis (requires API key)")
 @click.option("--json-output", is_flag=True, help="Output as JSON")
+@click.option("--summary", "-s", is_flag=True, help="Show only counts and AI analysis, skip the itemized findings list")
 @click.pass_context
-def inspect(ctx, path, llm, json_output):
+def inspect(ctx, path, llm, json_output, summary):
     """Inspect a PBIP project's semantic model."""
     from pbi_agent.inspector.model_inspector import ModelInspector
 
@@ -92,6 +95,18 @@ def inspect(ctx, path, llm, json_output):
 
     if json_output:
         console.print_json(json.dumps(result))
+    elif summary:
+        s = result.get("summary", {})
+        counts = result.get("counts", {})
+        console.print(f"[bold]Model:[/bold] {s.get('table_count', '?')} tables, "
+                       f"{s.get('total_columns', '?')} columns, {s.get('total_measures', '?')} measures, "
+                       f"{s.get('relationship_count', '?')} relationships")
+        console.print(f"[bold]Issues:[/bold] {counts.get('errors', 0)} errors, "
+                       f"{counts.get('warnings', 0)} warnings, {counts.get('info', 0)} info\n")
+        if result.get("llm_analysis"):
+            console.print(result["llm_analysis"])
+        else:
+            console.print("[dim]No AI analysis available. Re-run with --llm to include it.[/dim]")
     else:
         console.print(result.get("report", "No report generated."))
 
@@ -120,6 +135,28 @@ def review(ctx, path, llm, json_output):
         console.print_json(json.dumps(result))
     else:
         console.print(result.get("report", "No report generated."))
+
+
+@cli.command()
+@click.argument("path")
+@click.option("--output", "-o", default=None, help="Output markdown file path")
+@click.pass_context
+def document(ctx, path, output):
+    """Generate plain-language business documentation for a PBIP project (requires API key)."""
+    from pbi_agent.inspector.business_doc import BusinessDocGenerator
+    from pbi_agent.llm.client import LLMClient
+
+    config = ctx.obj["config"]
+    llm_client = LLMClient(config.llm)
+    generator = BusinessDocGenerator(llm_client)
+
+    with console.status("[bold yellow]Generating business documentation (this can take a minute)...[/bold yellow]"):
+        markdown = generator.generate(path)
+
+    out_path = output or (Path(path).name.replace(".pbip", "") + "_business_doc.md")
+    Path(out_path).write_text(markdown, encoding="utf-8")
+
+    console.print(f"[green]Business documentation saved to: {out_path}[/green]")
 
 
 @cli.command(name="export")

@@ -8,7 +8,7 @@ llm:
   # Model for intent routing (fast, cheap)
   router_model: "claude-haiku-4-5-20251001"
   # Model for analysis tasks (reasoning)
-  analysis_model: "claude-sonnet-4-20250514"
+  analysis_model: "claude-sonnet-5"
   max_tokens: 4096
   temperature: 0.0
 

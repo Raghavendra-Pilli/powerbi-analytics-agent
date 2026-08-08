@@ -31,7 +31,6 @@ class LLMClient:
         response = self.client.messages.create(
             model=self.config.router_model,
             max_tokens=20,
-            temperature=0.0,
             system=system,
             messages=[{"role": "user", "content": user_message}],
         )
@@ -39,12 +38,11 @@ class LLMClient:
         log.info(f"Routed intent: {intent}")
         return intent
 
-    def analyze(self, system_prompt: str, user_message: str) -> str:
+    def analyze(self, system_prompt: str, user_message: str, max_tokens: int | None = None) -> str:
         """Run an analysis task using the reasoning model."""
         response = self.client.messages.create(
             model=self.config.analysis_model,
-            max_tokens=self.config.max_tokens,
-            temperature=self.config.temperature,
+            max_tokens=max_tokens or self.config.max_tokens,
             system=system_prompt,
             messages=[{"role": "user", "content": user_message}],
         )
@@ -55,7 +53,6 @@ class LLMClient:
         kwargs = {
             "model": self.config.analysis_model,
             "max_tokens": self.config.max_tokens,
-            "temperature": self.config.temperature,
             "messages": messages,
         }
         if system_prompt:
