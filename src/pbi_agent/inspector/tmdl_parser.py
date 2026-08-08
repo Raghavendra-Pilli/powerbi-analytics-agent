@@ -261,8 +261,7 @@ class TMDLParser:
         if model_file.exists():
             model.model_info = self._parse_model_file(model_file)
 
-        # Parse tables
-       # Parse tables. Two known TMDL layouts are supported:
+        # Parse tables. Two known TMDL layouts are supported:
         #   1. Folder-per-table:  tables/<TableName>/definition.tmdl
         #   2. Flat files:        tables/<TableName>.tmdl
         tables_dir = definition_dir / "tables"
@@ -541,6 +540,20 @@ class TMDLParser:
         """Check if a line is part of partition definition."""
         return indent >= 2
 
+    def _split_table_column(self, value: str) -> tuple[str, str]:
+        """Split a combined 'Table.Column' or "Table.'Column Name'" reference.
+
+        Handles quoted column names (which may contain dots/spaces) by
+        splitting only on the first unquoted '.'.
+        """
+        value = value.strip()
+        match = re.match(r"^([^.']+)\.(.+)$", value)
+        if not match:
+            return "", value.strip("'\"")
+        table = match.group(1).strip()
+        col = match.group(2).strip().strip("'\"")
+        return table, col
+
     def _parse_relationships_file(self, path: Path) -> list[Relationship]:
         """Parse relationships.tmdl."""
         content = path.read_text(encoding="utf-8")
@@ -560,11 +573,19 @@ class TMDLParser:
                 if stripped.startswith("fromTable:"):
                     current.from_table = stripped.split(":", 1)[1].strip()
                 elif stripped.startswith("fromColumn:"):
-                    current.from_column = stripped.split(":", 1)[1].strip()
+                    value = stripped.split(":", 1)[1].strip()
+                    table, col = self._split_table_column(value)
+                    if table:
+                        current.from_table = table
+                    current.from_column = col
                 elif stripped.startswith("toTable:"):
                     current.to_table = stripped.split(":", 1)[1].strip()
                 elif stripped.startswith("toColumn:"):
-                    current.to_column = stripped.split(":", 1)[1].strip()
+                    value = stripped.split(":", 1)[1].strip()
+                    table, col = self._split_table_column(value)
+                    if table:
+                        current.to_table = table
+                    current.to_column = col
                 elif stripped.startswith("crossFilteringBehavior:"):
                     current.cross_filtering = stripped.split(":", 1)[1].strip()
                 elif stripped.startswith("isActive:"):
